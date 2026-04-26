@@ -1,0 +1,58 @@
+name: Docker Image CI
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ "master" ]
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Generate image tag
+      run: echo "IMAGE_TAG=$(date +%s)" >> $GITHUB_ENV
+
+    - name: Login to GHCR
+      run: echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u szemethy --password-stdin
+
+    - name: Build backend
+      run: |
+        docker build ./backend --file ./backend/Dockerfile \
+        --tag ghcr.io/szemethy/k8s_beadando-backend:$IMAGE_TAG
+
+    - name: Push backend
+      run: |
+        docker push ghcr.io/szemethy/k8s_beadando-backend:$IMAGE_TAG
+
+    - name: Build frontend
+      run: |
+        docker build ./frontend --file ./frontend/Dockerfile \
+        --tag ghcr.io/szemethy/k8s_beadando-frontend:$IMAGE_TAG
+
+    - name: Push frontend
+      run: |
+        docker push ghcr.io/szemethy/k8s_beadando-frontend:$IMAGE_TAG
+
+    - name: Update deployment.yaml
+      run: |
+        sed -i 's|ghcr.io/szemethy/k8s_beadando-backend:.*|ghcr.io/szemethy/k8s_beadando-backend:'"$IMAGE_TAG"'|' deployment.yaml
+
+        sed -i 's|ghcr.io/szemethy/k8s_beadando-frontend:.*|ghcr.io/szemethy/k8s_beadando-frontend:'"$IMAGE_TAG"'|' deployment.yaml
+
+    - name: Commit changes
+      run: |
+        git config --global user.name "szemethy"
+        git config --global user.email "szemethy@users.noreply.github.com"
+        git add deployment.yaml
+        git commit -m "update k8s images" || echo "no changes"
+        git push
+
+        mkdir -p ~/.kube
+        echo "${{ secrets.K8S_CONFIG_BASE64 }}" | base64 -d > ~/.kube/config
+        kubectl apply -f deployment.yaml

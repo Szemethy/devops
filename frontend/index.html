@@ -1,0 +1,43 @@
+﻿<!DOCTYPE html>
+<html lang="hu">
+<head>
+  <meta charset="UTF-8">
+  <title>Római jogtörvények</title>
+</head>
+<body>
+
+  <h1>Római Birodalom törvényei</h1>
+
+  <select id="yearSelect">
+    <option value="">Válassz egy római jogi rendeletet</option>
+    <option value="451bc">451 BC — A XII táblás törvények</option>
+    <option value="287bc">287 BC — Lex Hortensia</option>
+    <option value="17bc">17 BC — Lex Julia de Maritandis Ordinibus</option>
+    <option value="42ad">42 AD — Lex de repetundis</option>
+    <option value="71ad">71 AD — Lex Iulia de adulteriis coercendis</option>
+  </select>
+
+  <p id="result"></p>
+
+  <script>
+    const select = document.getElementById("yearSelect");
+    const result = document.getElementById("result");
+
+    select.addEventListener("change", async () => {
+      const year = select.value;
+
+      if (!year) return;
+
+      const res = await fetch(`http://api-k8s-beadando-szemethylevente.jcloud.jedlik.cloud/law/${year}`);
+      const data = await res.json();
+
+      if (data.error) {
+        result.innerText = data.error;
+      } else {
+        result.innerText = `${data.year}: ${data.law}`;
+      }
+    });
+  </script>
+
+</body>
+</html>
