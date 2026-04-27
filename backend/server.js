@@ -7,7 +7,7 @@ app.use(cors());
 const romanLaws = {
   "451bc": "A XII táblás törvények: a jog és eljárás írásba foglalása a római polgárok számára.",
   "287bc": "Lex Hortensia: a plebejusok határozatai minden polgárra kötelezővé váltak.",
-  "17bc": "Lex Julia de Maritandis Ordinibus: házasság és társadalmi rend szabályainak szigorítása.",
+  "XVII bc": "Lex Julia de Maritandis Ordinibus: házasság és társadalmi rend szabályainak szigorítása.",
   "42ad": "Lex de repetundis: provinciák kormányzóinak korrupció elleni elszámoltathatósága.",
   "71ad": "Lex Iulia de adulteriis coercendis: házasságtörés körüli jogi rendelkezések szigorítása."
 };
